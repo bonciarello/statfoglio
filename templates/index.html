@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StatFoglio — Analizzatore interattivo di fogli di calcolo con statistiche descrittive e grafici</title>
+  <meta name="description" content="Carica o incolla un foglio di calcolo CSV, TSV o Excel e ottieni automaticamente statistiche descrittive per ogni colonna — media, mediana, deviazione standard, minimo, massimo — con grafici a barre e a torta generati lato server.">
+  <base href="./">
+  <link rel="canonical" href="https://cristianporco.it/app/statfoglio/">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Inter:ital,opsz,wght@0,14..32,400..600;1,14..32,400..600&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/style.css">
+  <meta property="og:title" content="StatFoglio — Analizzatore interattivo di fogli di calcolo">
+  <meta property="og:description" content="Carica CSV, TSV o Excel e ottieni statistiche descrittive e grafici a barre e a torta automaticamente.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://cristianporco.it/app/statfoglio/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "StatFoglio",
+    "description": "Carica o incolla un foglio di calcolo e ottieni automaticamente statistiche descrittive per ogni colonna con grafici a barre e a torta.",
+    "url": "https://cristianporco.it/app/statfoglio/",
+    "applicationCategory": "DataAnalysisApplication",
+    "operatingSystem": "All",
+    "browserRequirements": "Requires JavaScript"
+  }
+  </script>
+</head>
+<body>
+
+  <!-- Ribbon — signature element -->
+  <div class="ribbon" id="ribbon" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="logo">
+        <svg class="logo-icon" width="32" height="32" viewBox="0 0 32 32" fill="none" aria-hidden="true">
+          <rect x="2" y="4" width="28" height="24" rx="3" stroke="#2563EB" stroke-width="2" fill="#F8F6F0"/>
+          <line x1="2" y1="11" x2="30" y2="11" stroke="#2563EB" stroke-width="1.5"/>
+          <line x1="10" y1="4" x2="10" y2="28" stroke="#CBD5E1" stroke-width="1"/>
+          <line x1="18" y1="11" x2="18" y2="28" stroke="#CBD5E1" stroke-width="1"/>
+          <circle cx="14" cy="8" r="1.2" fill="#D97706"/>
+          <rect x="12" y="14" width="4" height="10" rx="0.5" fill="#059669" opacity="0.7"/>
+          <rect x="20" y="17" width="4" height="7" rx="0.5" fill="#2563EB" opacity="0.7"/>
+        </svg>
+        <span class="logo-text">Stat<span class="logo-accent">Foglio</span></span>
+      </div>
+      <p class="header-tagline">Carica il tuo foglio di calcolo. Ottieni statistiche e grafici in un click.</p>
+    </div>
+  </header>
+
+  <main class="main-content">
+
+    <!-- Input Section -->
+    <section class="input-section" aria-label="Caricamento dati">
+      <div class="input-tabs" role="tablist">
+        <button class="tab-btn active" role="tab" aria-selected="true" id="tab-upload" aria-controls="panel-upload">Carica file</button>
+        <button class="tab-btn" role="tab" aria-selected="false" id="tab-paste" aria-controls="panel-paste">Incolla dati</button>
+      </div>
+
+      <!-- Upload panel -->
+      <div class="input-panel active" id="panel-upload" role="tabpanel" aria-labelledby="tab-upload">
+        <div class="drop-zone" id="drop-zone">
+          <svg class="drop-icon" width="40" height="40" viewBox="0 0 40 40" fill="none" aria-hidden="true">
+            <path d="M20 8v18M12 18l8-8 8 8" stroke="#2563EB" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M8 28v4a2 2 0 002 2h20a2 2 0 002-2v-4" stroke="#64748B" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <p class="drop-label">Trascina qui il tuo file <span class="drop-formats">CSV, TSV, Excel (.xlsx, .xls)</span></p>
+          <p class="drop-or">oppure</p>
+          <label class="btn btn-primary" for="file-input">
+            Sfoglia file
+            <input type="file" id="file-input" accept=".csv,.tsv,.tab,.xlsx,.xls" hidden>
+          </label>
+        </div>
+        <p class="file-name" id="file-name-display"></p>
+        <button class="btn btn-accent" id="btn-upload" disabled>Analizza file</button>
+      </div>
+
+      <!-- Paste panel -->
+      <div class="input-panel" id="panel-paste" role="tabpanel" aria-labelledby="tab-paste" hidden>
+        <div class="paste-area">
+          <label for="paste-text" class="paste-label">Incolla i tuoi dati</label>
+          <textarea id="paste-text" rows="10" placeholder="Nome,Età,Città&#10;Mario,34,Roma&#10;Anna,28,Milano&#10;Luca,45,Napoli" spellcheck="false"></textarea>
+          <div class="paste-options">
+            <div class="form-group">
+              <label for="sep-select">Separatore</label>
+              <select id="sep-select">
+                <option value=",">Virgola (,)</option>
+                <option value="tab">Tabulazione (Tab)</option>
+                <option value=";">Punto e virgola (;)</option>
+                <option value="|">Pipe (|)</option>
+              </select>
+            </div>
+            <button class="btn btn-accent" id="btn-paste">Analizza dati</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Loading state -->
+    <div class="loading" id="loading" hidden>
+      <div class="loading-spinner" aria-label="Elaborazione in corso"></div>
+      <p>Calcolo statistiche e generazione grafici&hellip;</p>
+    </div>
+
+    <!-- Error state -->
+    <div class="error-box" id="error-box" hidden role="alert">
+      <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <circle cx="10" cy="10" r="9" stroke="#DC2626" stroke-width="1.5"/>
+        <line x1="10" y1="6" x2="10" y2="11" stroke="#DC2626" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="10" cy="14" r="0.8" fill="#DC2626"/>
+      </svg>
+      <span id="error-msg"></span>
+    </div>
+
+    <!-- Results Section -->
+    <section class="results-section" id="results" hidden aria-label="Risultati analisi">
+
+      <!-- Summary -->
+      <div class="results-summary">
+        <h1>Risultati dell&rsquo;analisi</h1>
+        <div class="summary-badges" id="summary-badges"></div>
+      </div>
+
+      <!-- Stats Table -->
+      <div class="stats-table-wrapper">
+        <h2 class="section-eyebrow">Statistiche descrittive</h2>
+        <div class="table-scroll">
+          <table class="stats-table" id="stats-table">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts-section">
+        <h2 class="section-eyebrow">Grafici</h2>
+        <p class="chart-hint">Clicca su un grafico per scaricarlo come PNG.</p>
+        <div class="charts-grid" id="charts-grid"></div>
+      </div>
+
+      <!-- Preview Table -->
+      <div class="preview-section">
+        <h2 class="section-eyebrow">Anteprima dati (prime 20 righe)</h2>
+        <div class="table-scroll">
+          <table class="preview-table" id="preview-table">
+            <thead></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer class="site-footer">
+    <p>StatFoglio &mdash; statistica descrittiva a portata di click. Tutta l&rsquo;elaborazione avviene lato server; nessun dato viene memorizzato.</p>
+  </footer>
+
+  <script src="static/js/app.js"></script>
+</body>
+</html>
